@@ -26,9 +26,13 @@ if st.session_state["username"]:
         st.header("👋 Welcome, " + st.session_state["username"])
 
         # Show avatar
-        avatar_path = os.path.join(AVATAR_FOLDER, f"{st.session_state['username']}.png")
-        if os.path.exists(avatar_path):
-            st.image(avatar_path, width=150)
+        # Show avatar from avatar_data.csv
+if os.path.exists("avatar_data.csv"):
+    avatar_df = pd.read_csv("avatar_data.csv")
+    avatar_row = avatar_df[avatar_df["username"] == st.session_state["username"]]
+    if not avatar_row.empty:
+        avatar_url = avatar_row.iloc[0]["avatar_url"]
+        st.image(avatar_url, width=100)
 
         # Page links
         st.page_link("pages/1_Closet.py", label="👚 My Closet")
@@ -86,3 +90,4 @@ if not st.session_state["username"]:
                 st.success("Account created! Please log in.")
                 st.session_state["username"] = new_uname
                 st.rerun()
+

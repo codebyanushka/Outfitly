@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import os
-from utils import render_sidebar  # ✅ Corrected import
+from utils import render_sidebar  # Avatar & sidebar display logic
 
 # Streamlit page setup
 st.set_page_config(page_title="Outfitly", page_icon="👗", layout="wide")
@@ -20,7 +20,7 @@ if not os.path.exists(AVATAR_DATA_FILE):
 if "username" not in st.session_state:
     st.session_state["username"] = None
 
-# Render sidebar only if logged in
+# Render sidebar with avatar if logged in
 if st.session_state["username"]:
     render_sidebar()
 

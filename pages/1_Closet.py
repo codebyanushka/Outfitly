@@ -1,18 +1,11 @@
 import streamlit as st
 import os
 import pandas as pd
-from PIL import Image
 from utils import render_sidebar
 
+# Constants
 IMAGE_DIR = "images"
-USER_DATA = "user_data.csv"
 CLOSET_FILE = "closet_data.csv"
-
-# Ensure folders exist
-os.makedirs(IMAGE_DIR, exist_ok=True)
-
-# Show sidebar with avatar and navigation
-render_sidebar()
 
 # Stop if not logged in
 if "username" not in st.session_state:
@@ -20,54 +13,50 @@ if "username" not in st.session_state:
     st.stop()
 
 username = st.session_state["username"]
+render_sidebar()
 
-# Title
 st.title("👚 My Closet")
 
-# Upload section
-st.subheader("Upload to your closet")
-category = st.selectbox("Category", ["Top", "Bottom", "Footwear", "Outerwear"])
-uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
+uploaded_files = st.file_uploader("Upload clothes", accept_multiple_files=True, type=["png", "jpg", "jpeg"])
 
-if uploaded_file:
-    filename = f"{username}_{category}_{uploaded_file.name}"
-    filepath = os.path.join(IMAGE_DIR, filename)
-    with open(filepath, "wb") as f:
-        f.write(uploaded_file.getbuffer())
-    st.success(f"{category} uploaded!")
+if uploaded_files:
+    for file in uploaded_files:
+        save_path = os.path.join(IMAGE_DIR, file.name)
+        with open(save_path, "wb") as f:
+            f.write(file.getbuffer())
 
-    # Save closet entry
-    if os.path.exists(CLOSET_FILE):
-        closet_df = pd.read_csv(CLOSET_FILE)
-    else:
-        closet_df = pd.DataFrame(columns=["username", "category", "filename"])
+        if os.path.exists(CLOSET_FILE):
+            closet_df = pd.read_csv(CLOSET_FILE)
+        else:
+            closet_df = pd.DataFrame(columns=["username", "filename", "category"])
 
-    closet_df = pd.concat([
-        closet_df,
-        pd.DataFrame([{"username": username, "category": category, "filename": filename}])
-    ], ignore_index=True)
-    closet_df.to_csv(CLOSET_FILE, index=False)
+        new_row = {"username": username, "filename": file.name, "category": ""}
+        closet_df = pd.concat([closet_df, pd.DataFrame([new_row])], ignore_index=True)
+        closet_df.to_csv(CLOSET_FILE, index=False)
 
-# View wardrobe
-st.subheader("Your Closet")
+    st.success("Images uploaded. Set categories below.")
+
+# Display user closet
 if os.path.exists(CLOSET_FILE):
     closet_df = pd.read_csv(CLOSET_FILE)
     user_closet = closet_df[closet_df["username"] == username]
 
-    for cat in ["Top", "Bottom", "Footwear", "Outerwear"]:
-        st.markdown(f"### {cat}")
-        items = user_closet[user_closet["category"] == cat]
+    if not user_closet.empty:
+        st.subheader("Your Closet")
+        for idx, row in user_closet.iterrows():
+            col1, col2 = st.columns([1, 2])
+            image_path = os.path.join(IMAGE_DIR, row["filename"])
+            col1.image(image_path, width=100)
 
-        cols = st.columns(4)
-        for i, (_, row) in enumerate(items.iterrows()):
-            img_path = os.path.join(IMAGE_DIR, row["filename"])
-            if os.path.exists(img_path):
-                with cols[i % 4]:
-                    st.image(img_path, use_container_width=True)
-                    if st.button("🗑 Delete", key=f"del_{row['filename']}_{i}"):
-                        os.remove(img_path)
-                        closet_df = closet_df[closet_df["filename"] != row["filename"]]
-                        closet_df.to_csv(CLOSET_FILE, index=False)
-                        st.rerun()
-else:
-    st.info("No items in your closet yet.")
+            category = col2.selectbox(
+                f"Category for {row['filename']}",
+                ["Top", "Bottom", "Footwear", "Outerwear"],
+                key=row["filename"],
+                index=["Top", "Bottom", "Footwear", "Outerwear"].index(row["category"]) if row["category"] in ["Top", "Bottom", "Footwear", "Outerwear"] else 0
+            )
+
+            closet_df.loc[(closet_df["username"] == username) & (closet_df["filename"] == row["filename"]), "category"] = category
+
+        closet_df.to_csv(CLOSET_FILE, index=False)
+    else:
+        st.info("No items in your closet yet.")

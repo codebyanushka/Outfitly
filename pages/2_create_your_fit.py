@@ -3,7 +3,7 @@ import os
 import random
 import pandas as pd
 from datetime import datetime
-from utils import show_sidebar_with_avatar  # ✅ Correct import
+from utils import render_sidebar  # ✅ Use render_sidebar
 
 # Constants
 IMAGE_DIR = "images"
@@ -17,8 +17,8 @@ if "username" not in st.session_state:
 
 username = st.session_state["username"]
 
-# Show sidebar with avatar and navigation
-show_sidebar_with_avatar()
+# Sidebar with avatar
+render_sidebar()
 
 # Page title
 st.title("🧠 Create Your Fit")

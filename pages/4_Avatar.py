@@ -1,78 +1,91 @@
 import streamlit as st
 import urllib.parse
-import requests
-from PIL import Image
 import os
-import io
-import pandas as pd
+import requests
+import cairosvg
 
-st.set_page_config(page_title="Create Your Avatar", page_icon="🧍")
+st.set_page_config(page_title="Customize Avatar", page_icon="🧍‍♀️")
 
 AVATAR_BASE = "https://avataaars.io/"
 
-# Create avatars folder if it doesn't exist
-os.makedirs("images/avatars", exist_ok=True)
+# Sidebar
+with st.sidebar:
+    st.page_link("pages/1_Closet.py", label="👚 My Closet")
+    st.page_link("pages/2_create_your_fit.py", label="🧠 Create Your Fit")
+    st.page_link("pages/3_History.py", label="📸 Outfit History")
+    st.page_link("4_Avatar.py", label="🧍 Customize Avatar")
+    st.page_link("app.py", label="🔒 Logout")
 
-# Get current user
-if 'username' not in st.session_state:
-    st.error("You need to log in first.")
+st.title("🧍 Customize Your Avatar")
+
+if "username" not in st.session_state:
+    st.warning("Please log in first.")
     st.stop()
 
 username = st.session_state.username
 
-st.title("🧍 Create Your Avatar")
+# Create avatars directory if not exists
+os.makedirs("avatars", exist_ok=True)
 
-# Avatar options
-skin_options = ["Light", "Brown", "DarkBrown", "Black", "Pale"]
-hair_options = ["ShortHairShortFlat", "ShortHairShortRound", "LongHairStraight", "LongHairCurvy"]
-eye_options = ["Default", "Happy", "Squint", "Surprised"]
-mouth_options = ["Smile", "Serious", "Sad", "Disbelief"]
-accessory_options = ["Blank", "Prescription01", "Kurt", "Round"]
-hair_color_options = ["Black", "Brown", "Blonde", "Red", "SilverGray"]
+# Define customization options
+skin_colors = [
+    "Tanned", "Yellow", "Pale", "Light", "Brown", "DarkBrown", "Black"
+]
+hair_styles = [
+    "ShortHairShortFlat", "ShortHairShortCurly", "ShortHairFrizzle",
+    "LongHairStraight", "LongHairCurly", "LongHairBigHair", "NoHair"
+]
+eye_types = [
+    "Default", "Happy", "Squint", "Wink", "Cry", "Dizzy", "EyeRoll"
+]
+mouth_types = [
+    "Smile", "Serious", "Sad", "Tongue", "Twinkle", "Disbelief"
+]
+clothing_types = [
+    "BlazerShirt", "Hoodie", "Overall", "ShirtCrewNeck", "GraphicShirt", "BlazerSweater"
+]
+accessories_types = [
+    "Blank", "Round", "Sunglasses", "Prescription01", "Kurt", "Wayfarers"
+]
 
-# Sidebar form
-skin = st.selectbox("Skin Color", skin_options)
-top = st.selectbox("Hair Style", hair_options)
-hair = st.selectbox("Hair Color", hair_color_options)
-eyes = st.selectbox("Eye Type", eye_options)
-mouth = st.selectbox("Mouth Type", mouth_options)
-accessory = st.selectbox("Accessories", accessory_options)
+# Get selections
+skin = st.selectbox("Skin Color", skin_colors)
+hair = st.selectbox("Hair Style", hair_styles)
+eyes = st.selectbox("Eye Type", eye_types)
+mouth = st.selectbox("Mouth Type", mouth_types)
+clothing = st.selectbox("Clothing", clothing_types)
+accessories = st.selectbox("Accessories", accessories_types)
 
-# Construct avatar URL (with PNG format!)
+# Generate avatar URL
 params = {
-    "avatarStyle": "Transparent",
-    "skinColor": skin,
-    "topType": top,
-    "hairColor": hair,
+    "avatarStyle": "Circle",
+    "topType": hair,
+    "accessoriesType": accessories,
+    "clotheType": clothing,
     "eyeType": eyes,
     "mouthType": mouth,
-    "accessoriesType": accessory,
-    "format": "png"  # ✅ This is CRITICAL
+    "skinColor": skin
 }
-avatar_url = f"{AVATAR_BASE}?{urllib.parse.urlencode(params)}"
+avatar_url = AVATAR_BASE + "?" + urllib.parse.urlencode(params)
 
-# Show avatar
-st.image(avatar_url, width=200, caption="Your Avatar")
+# Show the avatar
+st.image(avatar_url, caption="Your Avatar", use_column_width=False)
 
-# Save button
-if st.button("💾 Save Avatar"):
+# Save avatar button
+if st.button("Save Avatar"):
     try:
-        response = requests.get(avatar_url)
-        response.raise_for_status()
-        avatar_image = Image.open(io.BytesIO(response.content))
-        avatar_path = f"images/avatars/{username}_avatar.png"
-        avatar_image.save(avatar_path)
-
-        # Update user_data.csv
-        user_data_file = "user_data.csv"
-        if os.path.exists(user_data_file):
-            df = pd.read_csv(user_data_file)
-            df.loc[df["username"] == username, "avatar_url"] = avatar_path
-            df.to_csv(user_data_file, index=False)
+        avatar_response = requests.get(avatar_url)
+        if avatar_response.status_code == 200:
+            avatar_path = os.path.join("avatars", f"{username}_avatar.png")
+            cairosvg.svg2png(bytestring=avatar_response.content, write_to=avatar_path)
+            st.success("✅ Avatar saved successfully!")
         else:
-            df = pd.DataFrame({"username": [username], "avatar_url": [avatar_path]})
-            df.to_csv(user_data_file, index=False)
-
-        st.success("Avatar saved successfully!")
+            st.error("❌ Failed to fetch avatar image.")
     except Exception as e:
-        st.error(f"Failed to save avatar: {e}")
+        st.error(f"❌ Failed to save avatar: {e}")
+
+# Show avatar in sidebar if already saved
+avatar_path = os.path.join("avatars", f"{username}_avatar.png")
+if os.path.exists(avatar_path):
+    with st.sidebar:
+        st.image(avatar_path, width=100, caption="👤 Your Avatar")

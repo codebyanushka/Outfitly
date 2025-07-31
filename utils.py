@@ -1,11 +1,11 @@
 import streamlit as st
 import os
 
-def render_sidebar():
+def show_sidebar_with_avatar():
     # ✅ Show avatar on top-right if logged in
     if "username" in st.session_state:
         username = st.session_state["username"]
-        avatar_path = os.path.join("avatars", f"{username}.png")
+        avatar_path = os.path.join("images", "avatars", f"{username}_avatar.png")
         if os.path.exists(avatar_path):
             _, avatar_col = st.columns([11, 1])
             with avatar_col:
@@ -20,3 +20,4 @@ def render_sidebar():
         if st.button("🚪 Logout"):
             st.session_state.logout = True
             st.switch_page("app.py")
+

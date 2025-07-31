@@ -1,10 +1,11 @@
-import streamlit as st
+ import streamlit as st
 import os
 import random
 import pandas as pd
 from datetime import datetime
-from utils import show_sidebar_with_avatar  # ✅ Corrected import (utils, not util)
+from utils import show_sidebar_with_avatar  # ✅ Correct import
 
+# Constants
 IMAGE_DIR = "images"
 CLOSET_FILE = "closet_data.csv"
 HISTORY_FILE = "outfit_history.csv"
@@ -16,13 +17,13 @@ if "username" not in st.session_state:
 
 username = st.session_state["username"]
 
-# Sidebar with avatar + navigation
+# Show sidebar with avatar and navigation
 show_sidebar_with_avatar()
 
-# Title
+# Page title
 st.title("🧠 Create Your Fit")
 
-# Load user's closet
+# Load closet
 if not os.path.exists(CLOSET_FILE):
     st.error("No closet found. Please upload clothes in My Closet page.")
     st.stop()
@@ -34,7 +35,7 @@ if user_closet.empty:
     st.info("No clothes found. Please add some to your closet.")
     st.stop()
 
-# Occasion and Weather
+# Occasion and weather selection
 occasion = st.selectbox("📅 Occasion", ["Casual", "Formal", "Party", "Sporty", "Work", "Date"])
 weather = st.selectbox("🌤️ Weather", ["Sunny", "Rainy", "Cold", "Hot", "Windy"])
 
@@ -48,7 +49,7 @@ if st.button("✨ Generate Outfit"):
         else:
             selected[cat] = None
 
-    # Display
+    # Display selected outfit
     cols = st.columns(4)
     for i, cat in enumerate(["Top", "Bottom", "Footwear", "Outerwear"]):
         if selected[cat]:
@@ -56,7 +57,7 @@ if st.button("✨ Generate Outfit"):
         else:
             cols[i].markdown(f"*No {cat} available*")
 
-    # Save history
+    # Save to history
     history_entry = {
         "username": username,
         "date_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -77,5 +78,6 @@ if st.button("✨ Generate Outfit"):
 
     history_df.to_csv(HISTORY_FILE, index=False)
     st.success("Outfit saved to history!")
+
 else:
     st.info("Click 'Generate Outfit' to get a styled look.")

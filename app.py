@@ -44,7 +44,7 @@ if not st.session_state["username"]:
             if not user.empty:
                 st.session_state["username"] = username
                 st.success("Login successful!")
-                st.experimental_rerun()
+                st.switch_page("pages/1_Closet.py")
             else:
                 st.error("Invalid username or password.")
 

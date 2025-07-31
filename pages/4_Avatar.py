@@ -44,7 +44,7 @@ params = {
 }
 avatar_url = f"{AVATAR_BASE}?{urllib.parse.urlencode(params)}"
 
-st.image(avatar_url, caption="Your Avatar", use_container_width=True)
+st.image(avatar_url, caption="Your Avatar", use_container_width=150)
 
 
 if st.button("Save Avatar"):

@@ -2,7 +2,7 @@ import streamlit as st
 import os
 import pandas as pd
 from PIL import Image
-from util import show_sidebar_with_avatar  # 👈 Make sure util.py is in the root directory
+from utils import render_sidebar
 
 IMAGE_DIR = "images"
 USER_DATA = "user_data.csv"
@@ -12,7 +12,7 @@ CLOSET_FILE = "closet_data.csv"
 os.makedirs(IMAGE_DIR, exist_ok=True)
 
 # Show sidebar with avatar and navigation
-show_sidebar_with_avatar()
+render_sidebar()
 
 # Stop if not logged in
 if "username" not in st.session_state:

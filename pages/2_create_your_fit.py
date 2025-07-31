@@ -3,7 +3,7 @@ import os
 import random
 import pandas as pd
 from datetime import datetime
-from util import show_sidebar_with_avatar
+from utils import show_sidebar_with_avatar  # ✅ Corrected import (utils, not util)
 
 IMAGE_DIR = "images"
 CLOSET_FILE = "closet_data.csv"

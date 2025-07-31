@@ -8,7 +8,11 @@ def render_sidebar():
         st.page_link("pages/2_create_your_fit.py", label="🧠 Create Your Fit")
         st.page_link("pages/3_History.py", label="📸 Outfit History")
         st.page_link("pages/4_Avatar.py", label="🧑‍🎨 Customize Avatar")
-        st.page_link("main.py", label="🚪 Logout")
+
+        if st.button("🚪 Logout"):
+            for key in st.session_state.keys():
+                del st.session_state[key]
+            st.experimental_rerun()
 
         # Show avatar if available
         if "username" in st.session_state:

@@ -20,4 +20,3 @@ def show_sidebar_with_avatar():
         if st.button("🚪 Logout"):
             st.session_state.logout = True
             st.switch_page("app.py")
-

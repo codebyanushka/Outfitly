@@ -2,6 +2,7 @@ import streamlit as st
 import os
 import pandas as pd
 from PIL import Image
+from util import show_sidebar_with_avatar  # 👈 Make sure util.py is in the root directory
 
 IMAGE_DIR = "images"
 USER_DATA = "user_data.csv"
@@ -10,23 +11,8 @@ CLOSET_FILE = "closet_data.csv"
 # Ensure folders exist
 os.makedirs(IMAGE_DIR, exist_ok=True)
 
-# Show avatar if logged in
-if "username" in st.session_state:
-    username = st.session_state["username"]
-    avatar_path = os.path.join("images/avatars", f"{username}_avatar.png")
-    if os.path.exists(avatar_path):
-        _, avatar_col = st.columns([11, 1])
-        with avatar_col:
-            st.image(avatar_path, width=60, caption=username)
-
-# Sidebar
-with st.sidebar:
-    st.page_link("pages/2_create_your_fit.py", label="🧠 Create Your Fit")
-    st.page_link("pages/3_History.py", label="📸 Outfit History")
-    st.page_link("pages/4_Avatar.py", label="🧑 Customize Avatar")
-    if st.button("🚪 Logout"):
-        st.session_state.logout = True
-        st.switch_page("app.py")
+# Show sidebar with avatar and navigation
+show_sidebar_with_avatar()
 
 # Stop if not logged in
 if "username" not in st.session_state:
@@ -78,7 +64,7 @@ if os.path.exists(CLOSET_FILE):
             if os.path.exists(img_path):
                 with cols[i % 4]:
                     st.image(img_path, use_container_width=True)
-                    if st.button("🗑 Delete", key=f"del_{row['filename']}_{i}"):  # ✅ Unique key fix
+                    if st.button("🗑 Delete", key=f"del_{row['filename']}_{i}"):
                         os.remove(img_path)
                         closet_df = closet_df[closet_df["filename"] != row["filename"]]
                         closet_df.to_csv(CLOSET_FILE, index=False)

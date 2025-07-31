@@ -3,28 +3,11 @@ import os
 import random
 import pandas as pd
 from datetime import datetime
+from util import show_sidebar_with_avatar
 
 IMAGE_DIR = "images"
 CLOSET_FILE = "closet_data.csv"
 HISTORY_FILE = "outfit_history.csv"
-
-# Show avatar if logged in
-if "username" in st.session_state:
-    username = st.session_state["username"]
-    avatar_path = os.path.join("avatars", f"{username}.png")
-    if os.path.exists(avatar_path):
-        _, avatar_col = st.columns([11, 1])
-        with avatar_col:
-            st.image(avatar_path, width=60, caption=username)
-
-# Sidebar navigation
-with st.sidebar:
-    st.page_link("pages/1_Closet.py", label="👚 My Closet")
-    st.page_link("pages/3_History.py", label="📸 Outfit History")
-    st.page_link("pages/4_Avatar.py", label="🧑 Customize Avatar")
-    if st.button("🚪 Logout"):
-        st.session_state.logout = True
-        st.switch_page("app.py")
 
 # Stop if not logged in
 if "username" not in st.session_state:
@@ -32,6 +15,9 @@ if "username" not in st.session_state:
     st.stop()
 
 username = st.session_state["username"]
+
+# Sidebar with avatar + navigation
+show_sidebar_with_avatar()
 
 # Title
 st.title("🧠 Create Your Fit")
@@ -91,7 +77,5 @@ if st.button("✨ Generate Outfit"):
 
     history_df.to_csv(HISTORY_FILE, index=False)
     st.success("Outfit saved to history!")
-
 else:
     st.info("Click 'Generate Outfit' to get a styled look.")
-

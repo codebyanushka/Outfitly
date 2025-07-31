@@ -47,7 +47,7 @@ else:
             if not user.empty:
                 st.session_state["username"] = username
                 st.success("Login successful!")
-                st.experimental_rerun()  # reload app with logged-in state
+                st.switch_page("pages/1_Closet.py")  # ✅ redirect to main page
             else:
                 st.error("Invalid username or password.")
 

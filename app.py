@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import os
-from utils import render_sidebar  # ⬅️ Import sidebar helper
+from utils import render_sidebar  # ✅ Corrected import
 
 # Streamlit page setup
 st.set_page_config(page_title="Outfitly", page_icon="👗", layout="wide")

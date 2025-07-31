@@ -20,8 +20,9 @@ if not os.path.exists(AVATAR_DATA_FILE):
 if "username" not in st.session_state:
     st.session_state["username"] = None
 
-# Render sidebar if logged in
-render_sidebar()
+# Render sidebar only if logged in
+if st.session_state["username"]:
+    render_sidebar()
 
 # ----------------- MAIN CONTENT -----------------
 st.markdown("<h1 style='text-align: center;'>👗 Outfitly</h1>", unsafe_allow_html=True)

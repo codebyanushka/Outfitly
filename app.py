@@ -3,7 +3,7 @@ import pandas as pd
 import os
 from utils import render_sidebar  # Avatar & sidebar display logic
 
-# Streamlit page setup
+# Streamlit setup
 st.set_page_config(page_title="Outfitly", page_icon="👗", layout="wide")
 
 # File paths
@@ -20,18 +20,21 @@ if not os.path.exists(AVATAR_DATA_FILE):
 if "username" not in st.session_state:
     st.session_state["username"] = None
 
-# Render sidebar only if logged in
+# ----------------- IF LOGGED IN -----------------
 if st.session_state["username"]:
     render_sidebar()
 
-# ------------------- MAIN CONTENT -------------------
-st.markdown("<h1 style='text-align: center;'>👗 Outfitly</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center;'>Your AI-powered fashion assistant! Get outfit recommendations tailored to your style, body type, and occasion.</p>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center;'>👗 Outfitly</h1>", unsafe_allow_html=True)
+    st.markdown(f"<p style='text-align: center;'>Welcome back, <b>{st.session_state['username']}</b>! Get outfit recommendations tailored to your style, body type, and occasion.</p>", unsafe_allow_html=True)
 
-# ------------------- LOGIN / SIGNUP -------------------
-if not st.session_state["username"]:
+# ----------------- LOGIN / SIGNUP FLOW -----------------
+else:
+    st.markdown("<h1 style='text-align: center;'>👗 Outfitly</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center;'>Your AI-powered fashion assistant! Login or signup to get started.</p>", unsafe_allow_html=True)
+
     tab1, tab2 = st.tabs(["🔐 Login", "🆕 Signup"])
 
+    # ---- Login ----
     with tab1:
         st.subheader("Login to your account")
         username = st.text_input("Username", key="login_user")
@@ -44,10 +47,11 @@ if not st.session_state["username"]:
             if not user.empty:
                 st.session_state["username"] = username
                 st.success("Login successful!")
-                st.switch_page("pages/1_Closet.py")
+                st.experimental_rerun()  # reload app with logged-in state
             else:
                 st.error("Invalid username or password.")
 
+    # ---- Signup ----
     with tab2:
         st.subheader("Create a new account")
         new_username = st.text_input("New Username", key="signup_user")

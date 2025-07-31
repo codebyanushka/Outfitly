@@ -10,10 +10,10 @@ CLOSET_FILE = "closet_data.csv"
 # Ensure folders exist
 os.makedirs(IMAGE_DIR, exist_ok=True)
 
-# Show avatar
+# Show avatar if logged in
 if "username" in st.session_state:
     username = st.session_state["username"]
-    avatar_path = os.path.join("avatars", f"{username}.png")
+    avatar_path = os.path.join("images/avatars", f"{username}_avatar.png")
     if os.path.exists(avatar_path):
         _, avatar_col = st.columns([11, 1])
         with avatar_col:
@@ -78,7 +78,7 @@ if os.path.exists(CLOSET_FILE):
             if os.path.exists(img_path):
                 with cols[i % 4]:
                     st.image(img_path, use_container_width=True)
-                    if st.button("🗑 Delete", key=f"del_{row['filename']}"):
+                    if st.button("🗑 Delete", key=f"del_{row['filename']}_{i}"):  # ✅ Unique key fix
                         os.remove(img_path)
                         closet_df = closet_df[closet_df["filename"] != row["filename"]]
                         closet_df.to_csv(CLOSET_FILE, index=False)

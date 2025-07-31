@@ -4,6 +4,8 @@ import requests
 import os
 from PIL import Image
 from utils import render_sidebar
+from io import BytesIO
+
 
 AVATAR_BASE = "https://avataaars.io/"
 
@@ -18,11 +20,11 @@ st.title("🧑‍🎨 Customize Your Avatar")
 
 # Avatar options
 skin = st.selectbox("Skin Color", ["Light", "Brown", "DarkBrown", "Black"])
-hair = st.selectbox("Hair Style", ["ShortHairShortFlat", "LongHairStraight", "Hat"])
+hair = st.selectbox("Hair Style", ["ShortHairShortFlat", "LongHairStraight", "Hat","longhaircurly","Bald","shorthaircurly"])
 eyes = st.selectbox("Eye Type", ["Default", "Happy", "Squint"])
-mouth = st.selectbox("Mouth Type", ["Smile", "Serious", "Disbelief"])
-clothes = st.selectbox("Clothing", ["BlazerShirt", "GraphicShirt", "Hoodie"])
-bg_color = st.color_picker("Background Color", "#E0E0E0")
+mouth = st.selectbox("Mouth Type", ["Smile", "Serious", "Disbelief","sad"])
+clothes = st.selectbox("Clothing", ["BlazerShirt", "GraphicShirt", "Hoodie","Dress","overizedTee"])
+bg_color = st.color_picker("Background Color", "#7B2121")
 
 # Build URL
 params = {
@@ -41,10 +43,15 @@ avatar_url = AVATAR_BASE + "?" + urllib.parse.urlencode(params)
 st.image(avatar_url, width=200, caption="Your Avatar")
 
 if st.button("Save Avatar"):
-    img_data = requests.get(avatar_url).content
-    avatar_dir = "images/avatars"
-    os.makedirs(avatar_dir, exist_ok=True)
-    file_path = os.path.join(avatar_dir, f"{username}_avatar.png")
-    with open(file_path, "wb") as f:
-        f.write(img_data)
-    st.success("Avatar saved!")
+    try:
+        response = requests.get(avatar_url)
+        response.raise_for_status()
+        img = Image.open(BytesIO(response.content))  # Validate image
+        avatar_dir = "images/avatars"
+        os.makedirs(avatar_dir, exist_ok=True)
+        file_path = os.path.join(avatar_dir, f"{username}_avatar.png")
+        img.save(file_path)  # Save as valid image file
+        st.success("Avatar saved successfully!")
+    except Exception as e:
+        st.error(f"⚠️ Failed to save avatar: {e}")
+

@@ -2,9 +2,12 @@ import streamlit as st
 import pandas as pd
 import os
 
+# File paths
 USER_DATA_FILE = "user_data.csv"
+AVATAR_DATA_FILE = "avatar_data.csv"
 AVATAR_FOLDER = "avatars"
 
+# Page config
 st.set_page_config(page_title="Outfitly - Your AI Stylist", layout="centered")
 
 # Create necessary folders
@@ -20,19 +23,18 @@ if os.path.exists(USER_DATA_FILE):
 else:
     user_df = pd.DataFrame(columns=["username", "password", "gender", "body_type", "wardrobe_name"])
 
-# Sidebar navigation
+# Sidebar navigation if user is logged in
 if st.session_state["username"]:
     with st.sidebar:
         st.header("👋 Welcome, " + st.session_state["username"])
 
-        # Show avatar
         # Show avatar from avatar_data.csv
-if os.path.exists("avatar_data.csv"):
-    avatar_df = pd.read_csv("avatar_data.csv")
-    avatar_row = avatar_df[avatar_df["username"] == st.session_state["username"]]
-    if not avatar_row.empty:
-        avatar_url = avatar_row.iloc[0]["avatar_url"]
-        st.image(avatar_url, width=100)
+        if os.path.exists(AVATAR_DATA_FILE):
+            avatar_df = pd.read_csv(AVATAR_DATA_FILE)
+            avatar_row = avatar_df[avatar_df["username"] == st.session_state["username"]]
+            if not avatar_row.empty:
+                avatar_url = avatar_row.iloc[0]["avatar_url"]
+                st.image(avatar_url, width=100)
 
         # Page links
         st.page_link("pages/1_Closet.py", label="👚 My Closet")
@@ -50,6 +52,7 @@ if os.path.exists("avatar_data.csv"):
 st.title("👗 Outfitly")
 st.markdown("Your AI-powered fashion assistant! Get outfit recommendations tailored to your style, body type, and occasion.")
 
+# Show login/signup if not logged in
 if not st.session_state["username"]:
     tab1, tab2 = st.tabs(["🔐 Login", "🆕 Sign Up"])
 
@@ -90,4 +93,3 @@ if not st.session_state["username"]:
                 st.success("Account created! Please log in.")
                 st.session_state["username"] = new_uname
                 st.rerun()
-

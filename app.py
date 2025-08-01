@@ -3,11 +3,11 @@ import pandas as pd
 import os
 from utils import load_avatar, clear_session
 
-# Setup
+# Config
 st.set_page_config(page_title="Outfitly", page_icon="👗", layout="wide")
 USER_DATA_FILE = "user_data.csv"
 
-# Ensure required CSV exists
+# Ensure user data CSV exists
 if not os.path.exists(USER_DATA_FILE):
     pd.DataFrame(columns=["username", "password"]).to_csv(USER_DATA_FILE, index=False)
 
@@ -25,7 +25,7 @@ if st.session_state["username"]:
         unsafe_allow_html=True,
     )
 
-    # Top-right avatar and logout
+    # Avatar + Logout button in top-right
     col1, col2 = st.columns([5, 1])
     with col2:
         load_avatar(username)
@@ -33,14 +33,14 @@ if st.session_state["username"]:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Center block
+    # Title & Description
     st.markdown("<h1 style='text-align: center;'>👗 Outfitly</h1>", unsafe_allow_html=True)
     st.markdown(
         "<p style='text-align: center;'>Your AI-powered fashion assistant! Get outfit recommendations tailored to your style, body type, and occasion.</p>",
         unsafe_allow_html=True,
     )
 
-    # Center navigation
+    # Centered navigation buttons
     col1, col2, col3 = st.columns([2, 1, 2])
     with col2:
         st.page_link("pages/1_Closet.py", label="👚 My Closet")
@@ -66,7 +66,7 @@ else:
 
             if not user.empty:
                 st.session_state["username"] = username
-                st.experimental_rerun()
+                st.rerun()
             else:
                 st.error("Invalid username or password.")
 
@@ -82,7 +82,6 @@ else:
             elif not new_username or not new_password:
                 st.warning("Please fill in all fields.")
             else:
-                pd.DataFrame([[new_username, new_password]], columns=["username", "password"]).to_csv(
-                    USER_DATA_FILE, mode="a", header=False, index=False
-                )
+                new_user = pd.DataFrame([[new_username, new_password]], columns=["username", "password"])
+                new_user.to_csv(USER_DATA_FILE, mode="a", header=False, index=False)
                 st.success("Account created! Please log in.")
